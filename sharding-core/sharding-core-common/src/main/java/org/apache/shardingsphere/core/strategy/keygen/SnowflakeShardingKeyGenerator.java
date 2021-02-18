@@ -34,10 +34,10 @@ import java.util.Properties;
  * </p>
  * 
  * <pre>
- * 1bit sign bit.
- * 41bits timestamp offset from 2016.11.01(ShardingSphere distributed primary key published data) to now.
- * 10bits worker process id.
- * 12bits auto increment offset in one mills
+ * 1bit sign bit. 符号位
+ * 41bits timestamp offset from 2016.11.01(ShardingSphere distributed primary key published data) to now. 时间戳位
+ * 10bits worker process id. 进程位
+ * 12bits auto increment offset in one mills 补充序号位
  * </pre>
  * 
  * <p>
@@ -101,6 +101,7 @@ public final class SnowflakeShardingKeyGenerator implements ShardingKeyGenerator
     @Override
     public synchronized Comparable<?> generateKey() {
         long currentMilliseconds = timeService.getCurrentMillis();
+        // 处理时钟回拨问题，在允许的范围内sleep,超出阈值抛异常
         if (waitTolerateTimeDifferenceIfNeed(currentMilliseconds)) {
             currentMilliseconds = timeService.getCurrentMillis();
         }
